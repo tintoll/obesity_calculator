@@ -9,7 +9,11 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Obesity Calculator',
-      home: MyCustomForm(),
+      home: Scaffold(
+          appBar: AppBar(
+            title: Text('폼 검증 데모'),
+          ),
+          body: MyCustomForm()),
     );
   }
 }
@@ -20,47 +24,40 @@ class MyCustomForm extends StatefulWidget {
 }
 
 class _MyCustomFormState extends State<MyCustomForm> {
-
-  // TextField 의 현재값을 얻는데 필요
-  final myController = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-    // 상태를 모니터링 할수 있음.
-    myController.addListener(() {
-      print("addListener Text : ${myController.text}");
-    });
-  }
-
-  @override
-  void dispose() {
-    // 화면이 종료될때 반드시 컨트롤러 해제해줘야함.
-    myController.dispose();
-    super.dispose();
-  }
-
+  // Form 위젯에 유니크한 키값을 부여하고 검증시 사용
+  final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Text Input 연습'),
-      ),
-      body: Column(
+    return Form(
+      key: _formKey,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          TextField(
-            onChanged: (text) {
-              print('onChange $text');
+          TextFormField(
+            validator: (value) {
+              if (value.isEmpty) {
+                return '입력값을 입력하세요';
+              }
+              return null;
             },
           ),
-          TextField(
-            controller: myController,
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16.0),
+            child: RaisedButton(
+              onPressed: () {
+                // 폼 검증을 통과하면 true, 아니면 false
+                if (_formKey.currentState.validate()) {
+                  // 스낵바 표시
+                  Scaffold.of(context)
+                      .showSnackBar(SnackBar(content: Text('검증완료')));
+                }
+              },
+              child: Text('검증'),
+            ),
           )
         ],
-      )
+      ),
     );
   }
 }
-
-
